@@ -63,9 +63,9 @@ function generateDynamicRoute() {
 
 // Initialize initial routes
 for (let i = 0; i < 6; i++) {
-    const i = 0; // for timeout scope
     generateDynamicRoute();
 }
+
 setInterval(generateDynamicRoute, 3500);
 
 // Scroll Reveal

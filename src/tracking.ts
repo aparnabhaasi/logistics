@@ -210,7 +210,8 @@ function renderShipment(data: Shipment) {
                 </div>
                 <div class="timeline-line"></div>
                 <div class="t-content">
-                    <div class="t-dot">${event.completed ? '✓' : ''}</div>
+                    <div class="t-dot">${event.completed ? '✓' : icon}</div>
+
                     <div class="t-card">
                         <div class="t-title">${event.title}</div>
                         <div class="t-loc">${event.location}</div>
