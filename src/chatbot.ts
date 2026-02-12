@@ -50,7 +50,6 @@ const knowledgeBase: Record<string, string[]> = {
 };
 
 // -- DOM Elements --
-const widget = document.getElementById('chatbot-widget');
 const toggleBtn = document.getElementById('chat-toggle');
 const closeBtn = document.getElementById('close-chat');
 const chatWindow = document.querySelector('.chat-window');
@@ -265,9 +264,9 @@ function escapeHtml(text: string) {
 }
 
 // Global Actions from suggestions
-window.addEventListener('message', (event) => {
-    // Handle external triggers if needed
+window.addEventListener('message', (_) => {
 });
+
 
 // Initialize on Load
 document.addEventListener('DOMContentLoaded', initChatbot);

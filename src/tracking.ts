@@ -188,7 +188,7 @@ function renderShipment(data: Shipment) {
         // User asked for "Delivery Process", usually Top -> Bottom (Start -> End).
 
         data.timeline.forEach((event, index) => {
-            const isLast = index === data.timeline.length - 1;
+        
             const item = document.createElement('div');
             item.className = `timeline-event ${event.completed ? 'completed' : 'future'} ${index === data.timeline.length - 1 && event.completed ? 'active' : ''}`;
 

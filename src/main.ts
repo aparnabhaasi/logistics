@@ -40,7 +40,10 @@ function generateDynamicRoute() {
     mapSvg.appendChild(path);
 
     // Animate entrance
-    setTimeout(() => { path.style.opacity = '0.3'; }, i * 100);
+    setTimeout(() => { 
+    path.style.opacity = '0.3'; 
+}, 100);
+
 
     // Animate dash offset (dashdrive effect)
     let offset = 0;
