@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Quotation | GlobalX Logistics</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Local overrides for specific quotation needs */
+        .step-card {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .step-card.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mode-card {
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .mode-card.selected {
+            border-color: var(--cyan-glow);
+            background: rgba(6, 182, 212, 0.1);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .progress-track {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--cyan-glow);
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 15px var(--cyan-glow);
+        }
+    </style>
+</head>
+
+<body class="quote-page">
+    <nav id="navbar" class="scrolled">
+        <div class="container">
+            <div class="logo">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-glow)"
+                    stroke-width="2.5">
+                    <path
+                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                </svg>
+                Global<span>X</span>
+            </div>
+            <div class="nav-links">
+                <a href="/">Intelligence</a>
+                <a href="/#services">Network</a>
+            </div>
+            <button class="btn btn-outline" style="padding: 0.6rem 1.5rem; font-size: 0.85rem;">Secure Access</button>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px; padding-bottom: 100px; max-width: 900px;">
+        <!-- Progress Header -->
+        <div style="margin-bottom: 4rem;">
+            <div
+                style="display: flex; justify-content: space-between; margin-bottom: 1rem; color: var(--text-dim); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">
+                <span id="step-name">Mode Analysis</span>
+                <span id="step-count">01 / 11</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- STEP 1: Mode Selection -->
+        <div class="glass-step-card step-card active" data-step="1">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem; font-weight: 700;">Strategic Transport Mode</h2>
+            <p style="color: var(--text-dim); margin-bottom: 3rem;">Select the optimal deployment channel for your
+                global cargo.</p>
+
+            <div class="mode-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
+                <!-- Air -->
+                <div class="mode-card glass-card" data-mode="air"
+                    style="padding: 2.5rem; cursor: pointer; text-align: center;">
+                    <div class="card-icon" style="font-size: 2.5rem; margin: 0 auto 1.5rem;">✈️</div>
+                    <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Air Priority</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">Extreme Speed Delivery</p>
+                </div>
+                <!-- Ocean -->
+                <div class="mode-card glass-card" data-mode="sea-fcl"
+                    style="padding: 2.5rem; cursor: pointer; text-align: center;">
+                    <div class="card-icon" style="font-size: 2.5rem; margin: 0 auto 1.5rem;">🚢</div>
+                    <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Ocean FCL</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">Full Container Logistics</p>
+                </div>
+                <!-- LCL -->
+                <div class="mode-card glass-card" data-mode="sea-lcl"
+                    style="padding: 2.5rem; cursor: pointer; text-align: center;">
+                    <div class="card-icon" style="font-size: 2.5rem; margin: 0 auto 1.5rem;">🌊</div>
+                    <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Ocean LCL</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">Consolidated Freight</p>
+                </div>
+                <!-- Courier -->
+                <div class="mode-card glass-card" data-mode="courier"
+                    style="padding: 2.5rem; cursor: pointer; text-align: center;">
+                    <div class="card-icon" style="font-size: 2.5rem; margin: 0 auto 1.5rem;">📦</div>
+                    <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Global Courier</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-dim);">Door-to-Door Express</p>
+                </div>
+            </div>
+            <div id="error-step-1" style="color: #ef4444; margin-top: 1rem; display: none;">Please select a mode to
+                proceed.</div>
+        </div>
+
+        <!-- STEP 2: Direction -->
+        <div class="glass-step-card step-card" data-step="2">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem; font-weight: 700;">Flow Vector</h2>
+            <p style="color: var(--text-dim); margin-bottom: 3rem;">Define the movement direction of your assets.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <button class="mode-card glass-card" data-dir="export"
+                    style="padding: 3rem; font-size: 1.2rem; font-weight: 700; width: 100%; border: 1px solid var(--glass-border); color: white; cursor: pointer;">Global
+                    Export</button>
+                <button class="mode-card glass-card" data-dir="import"
+                    style="padding: 3rem; font-size: 1.2rem; font-weight: 700; width: 100%; border: 1px solid var(--glass-border); color: white; cursor: pointer;">Global
+                    Import</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Classification -->
+        <div class="glass-step-card step-card" data-step="3">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem; font-weight: 700;">Cargo Classification</h2>
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label style="display: block; color: var(--text-dim); margin-bottom: 0.5rem; font-size: 0.9rem;">Asset
+                    Category</label>
+                <select class="glass-input" id="input-cargo-type">
+                    <option value="">Select Category...</option>
+                    <option value="General">General Cargo</option>
+                    <option value="Electronics">High-Value Electronics</option>
+                    <option value="Pharma">Pharmaceuticals</option>
+                    <option value="Industrial">Industrial Machinery</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- STEP 4: Protocols -->
+        <div class="glass-step-card step-card" data-step="4">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem; font-weight: 700;">Service Protocols</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                <div>
+                    <label
+                        style="display: block; color: var(--text-dim); margin-bottom: 0.5rem; font-size: 0.9rem;">Incoterms</label>
+                    <select class="glass-input" id="input-incoterms">
+                        <option value="EXW">EXW - Ex Works</option>
+                        <option value="FOB">FOB - Free On Board</option>
+                        <option value="DDP">DDP - Delivered Duty Paid</option>
+                    </select>
+                </div>
+                <div>
+                    <label
+                        style="display: block; color: var(--text-dim); margin-bottom: 0.5rem; font-size: 0.9rem;">Service
+                        Level</label>
+                    <select class="glass-input" id="input-service-level">
+                        <option value="Standard">Standard Network</option>
+                        <option value="Express">Quantum Express (Priority)</option>
+                        <option value="Eco">Eco Flow (Saver)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 5: Origin/Dest -->
+        <div class="glass-step-card step-card" data-step="5">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem; font-weight: 700;">Deployment Hubs</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                <div>
+                    <label
+                        style="display: block; color: var(--text-dim); margin-bottom: 0.5rem; font-size: 0.9rem;">Source
+                        Region</label>
+                    <select class="glass-input" id="origin-country">
+                        <option value="">Select Country...</option>
+                        <option value="China">China</option>
+                        <option value="USA">United States</option>
+                        <option value="Germany">Germany</option>
+                        <option value="India">India</option>
+                    </select>
+                </div>
+                <div>
+                    <label
+                        style="display: block; color: var(--text-dim); margin-bottom: 0.5rem; font-size: 0.9rem;">Target
+                        Region</label>
+                    <select class="glass-input" id="dest-country">
+                        <option value="">Select Country...</option>
+                        <option value="UK">United Kingdom</option>
+                        <option value="USA">United States</option>
+                        <option value="UAE">UAE</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <select class="glass-input" id="origin-port">
+                        <option value="">Select Origin Site...</option>
+                    </select>
+                </div>
+                <div>
+                    <select class="glass-input" id="dest-port">
+                        <option value="">Select Target Site...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 6: Measurements -->
+        <div class="glass-step-card step-card" data-step="6">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem; font-weight: 700;">Mass & Volume</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                <div>
+                    <label
+                        style="display: block; color: var(--text-dim); margin-bottom: 0.5rem; font-size: 0.9rem;">Total
+                        Weight (kg)</label>
+                    <input type="number" class="glass-input" id="input-weight" placeholder="0.00">
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div>
+                        <label
+                            style="display: block; color: var(--text-dim); margin-bottom: 0.5rem; font-size: 0.9rem;">L
+                            (cm)</label>
+                        <input type="number" class="glass-input" id="input-length">
+                    </div>
+                    <div>
+                        <label
+                            style="display: block; color: var(--text-dim); margin-bottom: 0.5rem; font-size: 0.9rem;">W
+                            (cm)</label>
+                        <input type="number" class="glass-input" id="input-width">
+                    </div>
+                    <div>
+                        <label
+                            style="display: block; color: var(--text-dim); margin-bottom: 0.5rem; font-size: 0.9rem;">H
+                            (cm)</label>
+                        <input type="number" class="glass-input" id="input-height">
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="background: rgba(255,255,255,0.03); padding: 2rem; border-radius: 16px; border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span
+                        style="display: block; font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase;">Chargeable
+                        Weight</span>
+                    <strong style="font-size: 2rem; color: var(--cyan-glow);" id="display-chargeable-weight">0.00
+                        kg</strong>
+                </div>
+                <div style="text-align: right;">
+                    <span
+                        style="display: block; font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase;">Volume</span>
+                    <strong style="font-size: 1.5rem; color: white;" id="display-volumetric">0.00 m³</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 7: Sync -->
+        <div class="glass-step-card step-card" data-step="7" style="text-align: center; padding: 5rem 2rem;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Process Network Rates</h2>
+            <p style="color: var(--text-dim); margin-bottom: 3rem;">AI engine synchronizing real-time market indices.
+            </p>
+            <button class="btn btn-primary" id="btn-calculate" style="min-width: 250px;">Sync Intelligence</button>
+        </div>
+
+        <!-- STEP 8: Personal Info & Shipper Details -->
+        <div class="glass-step-card step-card" data-step="8">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem; font-weight: 700;">Entity Validation</h2>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <!-- Consignee / User Info -->
+                <div>
+                    <h4 style="margin-bottom: 1rem; color: var(--cyan-glow);">Consignee Details</h4>
+                    <div style="display: grid; grid-gap: 1.5rem;">
+                        <input type="text" class="glass-input" placeholder="Company / Individual Name" id="input-name">
+                        <input type="email" class="glass-input" placeholder="Official Email Address" id="input-email">
+                        <input type="text" class="glass-input" placeholder="Phone Number" id="input-phone">
+                    </div>
+                </div>
+
+                <!-- Shipper Info -->
+                <div>
+                    <h4 style="margin-bottom: 1rem; color: var(--cyan-glow);">Shipper Details</h4>
+                    <div style="display: grid; grid-gap: 1.5rem;">
+                        <input type="text" class="glass-input" placeholder="Shipper Name" id="input-shipper-name">
+                        <input type="text" class="glass-input" placeholder="Origin Address" id="input-shipper-address">
+                        <input type="text" class="glass-input" placeholder="Shipper Contact No"
+                            id="input-shipper-phone">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 9: Final Generate -->
+        <div class="glass-step-card step-card" data-step="9" style="text-align: center; padding: 5rem 2rem;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Synthesis Complete</h2>
+            <p style="color: var(--text-dim); margin-bottom: 3rem;">Ready to generate secure proposal.</p>
+            <button class="btn btn-primary" id="btn-final-quote" style="min-width: 250px;">Generate Proposal</button>
+        </div>
+
+        <!-- STEP 10: Result -->
+        <div class="glass-step-card step-card" data-step="10">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem;">GlobalX Proposal</h2>
+
+            <div id="quote-result-container" class="result-box"
+                style="background: rgba(0,0,0,0.3); padding: 2rem; border-radius: 16px; border: 1px solid var(--glass-border);">
+                <!-- Header -->
+                <div
+                    style="display: flex; justify-content: space-between; margin-bottom: 2rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+                    <div>
+                        <span style="display: block; font-size: 0.8rem; color: var(--text-dim);">Service Mode</span>
+                        <strong style="font-size: 1.5rem; color: var(--cyan-glow);" id="summary-mode">AIR</strong>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="display: block; font-size: 0.8rem; color: var(--text-dim);">Total Estimated
+                            Cost</span>
+                        <strong style="font-size: 2.5rem; color: white;" id="summary-total-cost">$0.00</strong>
+                    </div>
+                </div>
+
+                <!-- Details Grid -->
+                <div
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; font-size: 0.9rem; color: var(--text-dim);">
+                    <div>
+                        <h5 style="color: white; margin-bottom: 0.5rem;">Route Info</h5>
+                        <p>Origin: <span id="summary-origin" style="color: white;">-</span></p>
+                        <p>Destination: <span id="summary-dest" style="color: white;">-</span></p>
+                        <p>Distance: <span id="summary-distance" style="color: white;">0 km</span> (Est.)</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <h5 style="color: white; margin-bottom: 0.5rem;">Cargo Specs</h5>
+                        <p>Weight: <span id="summary-weight" style="color: white;">0 kg</span></p>
+                        <p>Volume: <span id="summary-vol" style="color: white;">0 m³</span></p>
+                        <p>Dimensions: <span id="summary-dims" style="color: white;">-</span></p>
+                    </div>
+                </div>
+
+                <!-- Cost Breakdown -->
+                <div id="cost-breakdown"
+                    style="display: grid; gap: 0.5rem; color: var(--text-dim); font-size: 0.9rem; border-top: 1px dashed var(--glass-border); padding-top: 1rem;">
+                    <div style="display: flex; justify-content: space-between;"><span>Base Freight</span><span
+                            id="summary-base-cost">$0.00</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Fuel Surcharge</span><span
+                            id="summary-fuel-cost">$0.00</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Customs & Handling</span><span
+                            id="summary-customs-cost">$0.00</span></div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+                <button class="btn btn-primary" id="btn-download-pdf">📄 Download PDF</button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-outline" onclick="window.shareQuote('whatsapp')">WhatsApp</button>
+                    <button class="btn btn-outline" onclick="window.shareQuote('linkedin')">LinkedIn</button>
+                    <button class="btn btn-outline" onclick="window.shareQuote('twitter')">X/Twitter</button>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 2rem; color: var(--text-dim); font-size: 0.8rem;">*This is a
+                preliminary estimate subject to final weighing and capacity availability.</p>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="nav-actions" id="quote-nav"
+            style="display: flex; justify-content: space-between; margin-top: 3rem;">
+            <button class="btn btn-outline" id="btn-prev" style="opacity: 0;">Back</button>
+            <button class="btn btn-primary" id="btn-next">Next Step →</button>
+        </div>
+    </div>
+
+    <script type="module" src="/src/quotation.ts"></script>
+</body>
+
+</html>

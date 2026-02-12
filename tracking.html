@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Shipment | GlobalX</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <link rel="stylesheet" href="/src/chatbot.css">
+    <style>
+        /* -- Tracking Specific Overrides for Premium Look -- */
+        body.tracking-page {
+            background: var(--navy-dark);
+            min-height: 100vh;
+            color: white;
+            padding-top: 80px;
+            /* Nav Height */
+            overflow-x: hidden;
+        }
+
+        /* Cinematic Background (Ported from Hero) */
+        .page-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .page-bg::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%);
+            filter: blur(60px);
+        }
+
+        .network-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 100px 100px;
+            opacity: 0.2;
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+
+        /* Search Section */
+        .search-hero {
+            padding: 6rem 0 4rem 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .search-hero h1 {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-hero p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .track-input-wrapper {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            background: rgba(2, 6, 23, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            transition: all 0.3s ease;
+        }
+
+        .track-input-wrapper:focus-within {
+            border-color: var(--cyan-glow);
+            box-shadow: 0 20px 60px rgba(6, 182, 212, 0.15);
+        }
+
+        .track-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 1.2rem;
+            color: white;
+            font-family: var(--font-body);
+        }
+
+        .track-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .track-input:focus {
+            outline: none;
+        }
+
+        .btn-track-hero {
+            background: var(--cyan-glow);
+            color: var(--navy-dark);
+            border: none;
+            padding: 0 2.5rem;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-track-hero:hover {
+            background: #22d3ee;
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Premium Dashboard Layout */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr;
+            gap: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        /* Glass Card Redefinition */
+        .dash-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        .dash-card.no-pad {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .shipment-id {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1;
+        }
+
+        .shipment-meta {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Status Badge - Ultra Modern */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.05);
+            /* Default */
+            border: 1px solid transparent;
+        }
+
+        .status-pill.transit {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .status-pill.delivered {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+
+        .status-pill.alert {
+            background: rgba(245, 158, 11, 0.1);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
+        }
+
+        /* Map */
+        .map-section {
+            height: 350px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Timeline Redesign - Modern Process */
+        .timeline-container {
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .timeline-event {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 2rem;
+            position: relative;
+            min-height: 100px;
+        }
+
+        /* The Connecting Line */
+        .timeline-line {
+            position: absolute;
+            left: 119px;
+            /* Center of the dot column (100 + 2rem gap ~ start of content?) 
+                          Actually: grid layout. 
+                          Col 1: 100px. Gap: 32px. Col 2: ... 
+                          We want the line between Col 1 and Col 2. 
+                          Let's place line absolute relative to container or item. */
+            top: 2rem;
+            /* Start below the dot */
+            bottom: -2rem;
+            /* Connect to next */
+            width: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 0;
+        }
+
+        .timeline-event:last-child .timeline-line {
+            display: none;
+        }
+
+        .timeline-event.completed .timeline-line {
+            background: var(--cyan-glow);
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Date Styling */
+        .t-date {
+            text-align: right;
+            padding-top: 5px;
+            font-family: var(--font-body);
+        }
+
+        /* Content Wrapper */
+        .t-content {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+
+        /* The Dot / Node */
+        .t-dot {
+            position: absolute;
+            left: -2.6rem;
+            /* (Gap 2rem + ~ half dot width) */
+            top: 5px;
+            width: 24px;
+            height: 24px;
+            background: var(--navy-dark);
+            border: 2px solid var(--text-dim);
+            border-radius: 50%;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Completed State */
+        .timeline-event.completed .t-dot {
+            background: var(--cyan-glow);
+            border-color: var(--cyan-glow);
+            box-shadow: 0 0 15px var(--cyan-glow);
+            color: var(--navy-dark);
+            font-weight: 800;
+        }
+
+        /* Active Pulsing State */
+        .timeline-event.active .t-dot {
+            background: white;
+            border-color: white;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2), 0 0 20px white;
+            transform: scale(1.1);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+            }
+        }
+
+        /* Glass Content Card */
+        .t-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.2rem;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .timeline-event.active .t-card {
+            background: linear-gradient(90deg, rgba(6, 182, 212, 0.1) 0%, transparent 100%);
+            border-color: rgba(6, 182, 212, 0.3);
+            transform: translateX(5px);
+        }
+
+        .t-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.2rem;
+        }
+
+        .t-loc {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .t-loc::before {
+            content: '📍';
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Sidebar Info */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            text-align: right;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .alert-icon {
+            font-size: 1.8rem;
+        }
+
+        .alert-text h4 {
+            color: #f59e0b;
+            margin-bottom: 0.3rem;
+            font-size: 1.1rem;
+        }
+
+        .alert-text p {
+            color: #fed7aa;
+            font-size: 0.9rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 6rem 2rem;
+            color: var(--text-dim);
+        }
+
+        .empty-state h3 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body class="tracking-page">
+
+    <!-- Background Elements -->
+    <div class="page-bg">
+        <div class="network-grid"></div>
+    </div>
+
+    <!-- Nav -->
+    <nav id="navbar" class="scrolled">
+        <div class="container">
+            <a href="/" style="text-decoration: none;">
+                <div class="logo">Global<span>X</span></div>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/quotation.html">Quotation</a>
+                <a href="#" class="active">Tracking</a>
+            </div>
+            <button class="btn btn-outline">Portal Login</button>
+        </div>
+    </nav>
+
+    <!-- Search Hero -->
+    <section class="search-hero">
+        <div class="container">
+            <h1>Track Your Shipment</h1>
+            <p>Real-time visibility across Air, Ocean, and Land networks.</p>
+
+            <div class="track-input-wrapper">
+                <input type="text" id="track-input" class="track-input"
+                    placeholder="Enter HAWB, Container ID, or Booking Ref...">
+                <button id="track-btn" class="btn-track-hero">TRACK</button>
+            </div>
+
+            <div style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-dim);">
+                Try: <span style="color:white; cursor:pointer;" onclick="fillTrack('TRK9001')">TRK9001</span> (Air),
+                <span style="color:white; cursor:pointer;" onclick="fillTrack('TRK9002')">TRK9002</span> (Delivered),
+                <span style="color:white; cursor:pointer;" onclick="fillTrack('TRK9003')">TRK9003</span> (Delayed)
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Area -->
+    <div class="container" id="result-container" style="display: none;">
+
+        <!-- Alert Banner -->
+        <div id="alert-box" class="alert-banner" style="display: none;">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-text">
+                <h4>Shipment Exception</h4>
+                <p id="alert-msg">Clearance Delay: Missing Documentation</p>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+            <!-- LEFT: Main Status -->
+            <div style="display:flex; flex-direction:column; gap: 2rem;">
+
+                <div class="dash-card no-pad">
+                    <!-- Map -->
+                    <div class="map-section">
+                        <svg width="100%" height="100%" viewBox="0 0 800 350" preserveAspectRatio="xMidYMid slice"
+                            id="route-map">
+                            <!-- Background World Map Texture -->
+                            <image href="/images/world-map-dots.svg" width="800" height="350" opacity="0.3" />
+                            <!-- Fallback if image missing is fine, transparent -->
+                            <path id="map-world" d="" fill="rgba(255,255,255,0.05)" />
+                            <!-- DYNAMIC ROUTES INJECTED HERE -->
+                        </svg>
+
+                        <!-- Overlay gradient for aesthetics -->
+                        <div
+                            style="position: absolute; bottom:0; left:0; width:100%; height:50%; background: linear-gradient(to top, var(--glass-bg), transparent); pointer-events: none;">
+                        </div>
+                    </div>
+
+                    <div style="padding: 2.5rem;">
+                        <div class="card-header" style="border:none; margin:0; padding:0;">
+                            <div>
+                                <div id="disp-id" class="shipment-id">TRK-0000</div>
+                                <div class="shipment-meta">
+                                    <span id="disp-mode">AIR FREIGHT</span> •
+                                    <span id="det-origin">ORIGIN</span> <span style="color:var(--cyan-glow)">➔</span>
+                                    <span id="det-dest">DEST</span>
+                                </div>
+                            </div>
+                            <div id="disp-badge" class="status-pill transit">
+                                <div style="width:8px; height:8px; background:currentColor; border-radius:50%;"></div>
+                                In Transit
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="dash-card">
+                    <h3 style="font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1.5rem;">Shipment
+                        Progress</h3>
+                    <div class="timeline-container" id="timeline-list">
+                        <!-- INJECTED -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: Sidebar Details -->
+            <div style="display:flex; flex-direction:column; gap: 2rem;">
+
+                <div class="dash-card">
+                    <h4
+                        style="color:var(--cyan-glow); text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; margin-bottom:1.5rem; font-weight:700;">
+                        Specifics</h4>
+
+                    <div class="info-row">
+                        <span class="lbl">Est. Arrival</span>
+                        <span class="val" id="det-eta">Oct 24, 2026</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="lbl">Total Weight</span>
+                        <span class="val" id="det-weight">450 kg</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="lbl">Volume/Pcs</span>
+                        <span class="val" id="det-pieces">5 Pallets</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="lbl">Service</span>
+                        <span class="val">Door-to-Door</span>
+                    </div>
+                </div>
+
+                <!-- POD Section -->
+                <div class="dash-card" id="pod-section" style="display: none;">
+                    <h4
+                        style="color:#34d399; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; margin-bottom:1rem; font-weight:700;">
+                        Proof of Delivery</h4>
+
+                    <div
+                        style="background: white; border-radius: 12px; height: 100px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1rem;">
+                        <img id="pod-img" src="" style="max-height: 80%; opacity: 0.8;">
+                    </div>
+                    <button class="btn btn-outline" style="width: 100%; font-size: 0.9rem;">Download PDF</button>
+                </div>
+
+                <div class="dash-card" style="text-align: center;">
+                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1rem;">Need assistance?</p>
+                    <button class="btn btn-outline" style="width: 100%;">Contact Support</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="error-state" class="empty-state">
+        <h3>Ready to Track</h3>
+        <p>Enter your tracking number above to see real-time status.</p>
+    </div>
+
+    <!-- Chatbot Container -->
+    <div id="chatbot-widget"></div>
+
+    <!-- Scripts -->
+    <script>
+        function fillTrack(id) {
+            document.getElementById('track-input').value = id;
+            document.getElementById('track-btn').click();
+        }
+    </script>
+    <script type="module" src="/src/tracking.ts"></script>
+    <script type="module" src="/src/chatbot.ts"></script>
+</body>
+
+</html>
